@@ -1,11 +1,11 @@
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types#Declarations
-https://medium.com/@ethannam/javascripts-memory-model-7c972cd2c239
-https://developer.mozilla.org/en-US/docs/Glossary/undefined
-https://blog.sessionstack.com/how-does-javascript-actually-work-part-1-b0bacc073cf
-https://velog.io/@godori/JavaScript-engine-1 
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management
-https://blog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-3f28b94cfbec
-https://steemit.com/kr/@cicada0014/2wvmzm-javascript
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types#Declarations<br>
+https://medium.com/@ethannam/javascripts-memory-model-7c972cd2c239<br>
+https://developer.mozilla.org/en-US/docs/Glossary/undefined<br>
+https://blog.sessionstack.com/how-does-javascript-actually-work-part-1-b0bacc073cf<br>
+https://velog.io/@godori/JavaScript-engine-1<br>
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management<br>
+https://blog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-3f28b94cfbec<br>
+https://steemit.com/kr/@cicada0014/2wvmzm-javascript<br>
 
 ### 1-1 데이터 타입의 종류
 데이터 타입이란 자바스크립트 엔진(개발자가 작성한 코드를 컴퓨터가 이해할 수 있는 기계어로 바꾸는 역할을 수행하는 애플리케이션)에서 이해할 수 있는 데이터의 종류라고 쉽게 생각하면 된다.
