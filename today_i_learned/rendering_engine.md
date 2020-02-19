@@ -44,27 +44,23 @@ For each visible node, the browser finds the appropriate matching CSSOM rules an
 It emits visible nodes with content and their computed styles
 
 #### Layout of the render tree
-렌더러가 생성돼서 트리에 추가됐더라도, 위치와 사이즈는 갖고 있지 않다. 이러한 값들을 측정하는 것을 layout이라 부른다.
-
-HTML은 흐름 기반 레이아웃 모델을 사용하는데, 이는 대부분의 시간 동안 단일 경로 안에서 geometry를 변환한다는 걸 의미한다. 
-
-Layout은 재귀적인 프로세스다. root renderer - <html>요소와 상응하는 - 에서 시작한다. Layout은 부분 혹은 전체 renderer 위계에 따라 재귀적으로 수행되며, 각 renderer에 대한 geometric 정보 변환이 일어난다.
-  
-root renderer의 위치는 0, 0이고 이 dimensions는 브라우저 창 중 보이는 부분의 사이즈를 갖고 있다. (a.k.a view port)
-
-layout을 시작한다는 의미는 각각의 노드에 화면 위에서 어떻게 보여야 하는 지 정확한 coordinates를 제공한다는 것을 말한다.
+렌더러가 생성돼서 트리에 추가됐더라도, 위치와 사이즈는 갖고 있지 않다. 이러한 값들을 측정하는 것을 layout이라 부른다.<br>
+HTML은 흐름 기반 레이아웃 모델을 사용하는데, 이는 대부분의 시간 동안 단일 경로 안에서 geometry를 변환한다는 걸 의미한다. <br>
+Layout은 재귀적인 프로세스다. root renderer - <html>요소와 상응하는 - 에서 시작한다. Layout은 부분 혹은 전체 renderer 위계에 따라 재귀적으로 수행되며, 각 renderer에 대한 geometric 정보 변환이 일어난다. 
+root renderer의 위치는 0, 0이고 이 dimensions는 브라우저 창 중 보이는 부분의 사이즈를 갖고 있다. (a.k.a view port)<br>
+layout을 시작한다는 의미는 각각의 노드에 화면 위에서 어떻게 보여야 하는 지 정확한 coordinates를 제공한다는 것을 말한다.<br>
 
 
 #### Painting the render tree
-이 단계에서는 화면에 내용을 표시하기 위해 renderer 트리가 탐색되면서 renderer의 paint() 메소드가 호출된다.
+이 단계에서는 화면에 내용을 표시하기 위해 renderer 트리가 탐색되면서 renderer의 paint() 메소드가 호출된다.<br>
 
-Painting은 global 혹은 incremental하게 이루어진다.
-* Global - the entire tree gets repainted
-* Incremental - 몇몇 renderer만 전체 트리에 영향을 주지 않는 방식으로 변경된다.  
+Painting은 global 혹은 incremental하게 이루어진다.<br>
+* Global - the entire tree gets repainted<br>
+* Incremental - 몇몇 renderer만 전체 트리에 영향을 주지 않는 방식으로 변경된다.<br>  
 >The renderer invalidates its rectangle on the screen. This causes the OS to see it as a region that needs repainting and to generate a paint event. The OS does it in a smart way by merging several regions into one.<br>
 
 #### Order of processing scripts and style sheets
-<script> 태그를 만나면 스크립트가 즉시 변환되고 실행된다. document 변환은 스크립트 실행이 끝날 때까지 멈춘다. 이는 이 과정이 동기적임을 의미한다.
+태그를 만나면 스크립트가 즉시 변환되고 실행된다. document 변환은 스크립트 실행이 끝날 때까지 멈춘다. 이는 이 과정이 동기적임을 의미한다.
   
 만약 스크립트가 외부 자원이면 먼저 네트워크에서 마찬가지로 동기적으로 내려받는다. 모든 변환 작업은 내려받기가 끝날 때까지 멈춘다.
 
