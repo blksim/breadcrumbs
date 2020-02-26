@@ -39,6 +39,7 @@ function makeFunc() {
 var myFunc = makeFunc();
 myFunc();
 ```
+
 언뜻 보기엔 이 코드가 작동한다는 게 반직관적으로 보이긴 한다. 몇몇 프로그래밍 언어에서, 함수 내 지역 변수는 
 해당 함수가 실행되는 동안 만 존재한다. `makeFunc()`가 실행 완료되면, `name` 변수에 더 이상 접근할 수 없다고 생각할 지 모른다.
 하지만, 코드는 기대한 대로 동작하기 때문에 이는 자바스크립트만의 현상이 아닌 것이다.
@@ -50,6 +51,7 @@ myFunc();
 - `displayName`의 인스턴스는 변수 `name`의 존재에서 보듯, lexical environment에 대한 참조를 유지하고 있다.
 - 이런 이유로, `myFunc`가 호출되면, 변수 `name`은 사용 가능한 상태가 되고, "Mozilla"는 `alert`로 전달되는 것이다.
 
+```
 function makeAdder(x) {
   return function(y) {
     return x + y;
