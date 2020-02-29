@@ -71,5 +71,91 @@ console.log(add10(2)); //12
 - add5와 add10은 둘다 closures다. 같은 함수 정의를 공유하지만, 다른 lexical environments를 공유한다. 
 - add5의 lexical environment에 속한 x는 5이고, add10의 lexical environment에 속한 x는 10이다.
 
-아직 lexical environment와 closure의 개념적 차이가 뭔지 확실하게 모르겠음
-..업데이트중..
+https://www.quora.com/Is-lexical-scope-the-same-definition-as-closure-in-JavaScript-If-not-what-are-the-differences-in-meaning-and-example
+
+
+### Closure와 메모리 관리
+- 메모리 관리 = 메모리 누수(개발자의 의도와 달리 참조 카운트가 0이 되지 않아 GC되지 않는 상황)를 방지한다
+- 최근의 자바스크립트 엔진에서는 '의도한' 메모리 소모에 대한 관리법만 잘 파악하면 충분하다.
+- 즉 필요하지 않을 때는 메모리를 쓰지 않도록 해주면 된다.
+- 참조 카운트를 0으로 만드는 방법 : null이나 undefined를 할당한다.
+
+```
+// (1) return에 의한 클로저의 메모리 헤제
+var outer = (function () {
+  var a = 1;
+  var inner = function () {
+    return ++a;
+  };
+})();
+console.log(outer());
+console.log(outer());
+outer = null; // outer 식별자의 inner 함수 참조를 끊음
+
+// (2) setInterval에 의한 클로저의 메모리 해제
+(function () {
+  var a = 0;
+  var intervalId = null;
+  var inner = function () {
+    if (++a >= 10) {
+      clearInterval(intervalId);
+      inner = null; // inner 식별자의 함수 참조를 끊음.
+    }
+  console.log(a);
+  };
+  intervalId = setInterval(inner, 1000);
+})();
+
+// (3) eventListener에 의한 클로저 메모리의 해제
+(function () {
+  var count = 0;
+  var button = document.createElement('button');
+  button.innerText = 'click';
+  
+  var clickHandler = function() {
+    console.log(++count, 'times clicked');
+    if (count >= 10) {
+      button.removeEventListener('click', clickHandler);
+      clickHandler = null; // clickHandler 식별자의 함수 참조를 끊음
+    }
+};
+button.addEventListner('click', clickHandler);
+document.body.appendChild(button);
+})();
+```
+
+### Closure 활용 사례
+#### 1. 콜백 함수 내부에서 외부 데이터를 사용하고자 할 때
+#### 2. 접근 권한 제어
+- return을 활용한 접근 권한 부여
+> 외부에 제공하고자 하는 정보들을 모아서 return하고, 내부에서만 사용할 정보들은 return하지 않는 것으로 접근 권한 제어가 가능한 것입니다. return한 변수들은 공개 멤버(public member)가 되고, 그렇지 않은 변수들은 비공개 멤버(private member)가 되는 것이죠.
+> 1. 함수에서 지역변수 및 내부함수 등을 생성합니다.
+> 2. 외부에 접근권한을 주고자 하는 대상들로 구성된 참조형 데이터(대상이 여럿일 때는 객체 또는 배열, 하나일 때는 함수)를 return합니다.
+> -> return한 변수들은 공개 멤버가 되고, 그렇지 않은 변수들은 비공개 멤버가 됩니다.
+이 때 return되는 함수에 대한 덮어씌우기가 가능 하지만, 그것도 변경되지 않게 하려면 return 전에 객체를 freeze한다. 
+https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
+
+#### 3. 부분 적용 함수(partially applied function)
+#### 4. 커링 함수(currying function)
+https://edykim.com/ko/post/writing-a-curling-currying-function-in-javascript/<br>
+https://javascript.info/currying-partials<br>
+https://www.zerocho.com/category/JavaScript/post/579236d08241b6f43951af18<br>
+https://blog.bitsrc.io/understanding-currying-in-javascript-ceb2188c339<br>
+> Currying is a process in functional programming in which we can transform a function with multiple arguments into a sequence of nesting functions. It returns a new function that expects the next argument inline.<br>
+> It keeps returning a new function (that expects the current argument, like we said earlier) until all the arguments are exhausted. The arguments are kept "alive"(via closure) and all are used in execution when the final function in the currying chain is returned and executed.<br>
+> 여러 개의 인자를 받는 함수를 하나의 인자만 받는 함수로 나눠서 순차적으로 호출될 수 있게 체인 형태로 구성한 것을 말합니다
+--> 자주 쓰이는 함수의 매개변수 대부분이 비슷하고 일부만 바뀌는 경우 활용 가능.
+```
+var getInformation = function (baseUrl) {
+  return function (path) {
+    return function (id) {
+      return fetch(baseUrl + path + '/' + id);
+    };
+  };
+};
+//ES6
+var getInformation = baseUrl => path => id => fetch(baseUrl + path + '/' + id);
+```
+
+
+
