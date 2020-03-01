@@ -1,11 +1,47 @@
+참고 링크<br>
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures<br>
-https://www.youtube.com/watch?v=71AtaJpJHw0
+https://www.youtube.com/watch?v=71AtaJpJHw0<br>
+https://medium.com/@LindaVivah/javascript-closures-a-beginner-s-guide-3d5eee63cb6f<br>
+https://www.codingame.com/playgrounds/6516/closures-in-javascript-for-beginners<br>
+https://itnext.io/a-beginners-guide-to-understanding-javascript-closures-b5eb57fdbeb4
 
 ### Closures
->A closure is **the combination of a function** bundled together (enclosed) with references to its surrounding state (the lexical environment).
+> A closure is **the combination of a function** bundled together (enclosed) with references to its surrounding state (the lexical environment).
 In other words, a closure gives you **access to an outer function’s scope from an inner function.** 
 In JavaScript, closures are created every time a function is created, at function creation time.
-내부 함수에서 외부 함수 유효범위에 접근할 수 있게끔 한 함수 조합. 함수가 선언되는 시점에, 선언될 때마다 클로저가 생성된다.
+> A closure is a function which has access to the variable from another function’s scope. This is accomplished by creating a function inside a function. Of course, the outer function does not have access to the inner scope.
+- 내부 함수에서 외부 함수 유효범위에 접근할 수 있게끔 한 함수 조합. 함수가 선언되는 시점에, 선언될 때마다 클로저가 생성된다.
+- 다른 함수 스코프에서 접근할 수 있는 함수. 함수 안에 함수를 생성할 때 생김. 물론, 바깥 함수에서 안쪽 스코프에는 접근할 수 없음.
+
+> Closure are nested function which has access to the outer scope</br>
+> After the outer function is returned, by keeping a reference to the inner function (the closures) we prevent the outer scope to be destroyed.
+> Another extremely important thing to understand is that a closure is created at every function call. Whenever I’m using the closure, it will reference the same outer scope. If any variable is change in the outer scope, than the change will be visible in the next call as well.
+- 클로저는 외부 스코프에 접근할 수 있는 중첩된 함수다.
+- 외부 함수가 리턴(실행 종료)되고 나서도, 내부 함수에 대한 참조를 유지함으로써 외부 스코프가 사라지는 것을 막는다.
+- 가장 중요한 것은 closure가 모든 함수 호출 시에 생성된다는 것이다. 내가 closure를 사용할 때마다, 같은 외부 스코프를 참조한다는 것이다. 만약 외부 스코프에 수정 사항이 생기면, 다음 함수 호출 시 수정 사항이 그대로 반영될 것이다.
+
+> Things to remember:
+> - A closure is an inner function which has access to the outer function scope
+> - Every call of the outer function creates a new closure
+> - Every call of the closure interacts with the same outer scope – which is persistent
+- 클로저는 외부 함수 스코프에 접근할 수 있는 내부 함수다
+- 외부 함수 호출할 때마다 새 클로저 생성된다(외부 함수라는 명명이 내부 함수를 전제하므로)
+- 클로저 호출할 때마다 같은 외부 스코프와 상호작용한다
+
+> A function inside another function that: 
+> 1) uses variables from its parent scope and 2) is exposed to the outside world.
+> That “exposed” part is a big reason why we even use closures. 
+> By only exposing the function, and not the variables it uses, we essentially make them private.
+- 1) 부모 스코프의 변수를 사용하고 
+- 2) 바깥으로 노출된 
+- 함수 안의 함수 
+- '노출됐다'는 게 closure를 사용하는 이유임
+- 사용할 변수들이 아닌 함수를 노출하는 것만으로, 변수들에 대한 접근을 프라이빗하게 만들 수 있다.
+
+--> **그래서, closure는 개념적으로 함수인가 현상인가?** 
+> 클로저란 어떤 함수 A에서 선언한 변수 a를 참조하는 내부함수 B를 외부로 전달할 경우 A의 실행 컨텍스트가 종료된 이후에도 변수 a가 사라지지 않는 현상을 말합니다.
+> ... 통상적으로 클로저 현상이 발견되는 함수 자체를 클로저라고 칭하더라도 ..... 개념적으로 클로저는 어떤 상황에서만 발생하는 특수한 '현상'을 의미합니다. 함수는 이 현상이 나타나기 위한 '조건'에는 해당하지만, 그 현상을 구체화한 '대상'으로는 볼 수 없습니다. 따라서 실제적인 클로저는 '클로저 현상에 의해 메모리에 남겨진 변수들의 집합'을 지칭하는 것으로 이해하는 것이 좀 더 정확할 것입니다. (121p)
+
 
 #### Lexical Scoping
 ```
