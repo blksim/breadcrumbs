@@ -30,4 +30,25 @@ Generally, when we talk about a claim in the context of a JWT, we are referring 
 }
 ```
 
-...업데이트중...
+### 구조
+https://itnext.io/so-what-the-heck-is-jwt-or-json-web-token-dca8bcb719a6 참고<br>
+
+JWT는 비밀키를 생성한다. 클라이언트로부터 JWT를 받으면, 서버에서 JWT를 이 비밀키로 확인해볼 수 있다. JWT에 가해지는 어떤 변형도 검증 실패를 부른다.
+JWT는 간단히 말하면 문자열이나 온점(.)으로 구분되는 세 파트로 나뉘는데, 각 파트는 base64 인코딩되어 있다.
+```
+var HEADER_HASH = base64(header);
+var PAYLOAD_HASH = base64(payload);
+var SIGNATURE_HASH = base64(signature);
+
+var JWT = HEADER_HASH + '.' + PAYLOAD_HASH + '.' + SIGNATURE_HASH;
+```
+
+**header**
+`header`는 JWT 암호화 알고리즘에 대한 정보를 담고 있는 JSON 문자열이다. 중요한 필드는 `type`과 `alg'. `type`은 항상 JWT이다. 알고리즘을 의미하는 'alg'는 `HS256`, `RS256` 중 선택 가능<br>
+
+**payload**
+`payload`는 담고자 하는 모든 데이터. 마찬가지로 JSON 문자열이다. 데이터는 base64 암호화되므로, 이메일과 비밀번호 같은 민감 정보는 아무나 복호화해서 읽을 수 있으므로 포함하지 않는 게 좋다.
+`claims`라고도 불림
+
+**signature**
+암호화된 문자열이다. 어떤 알고리즘을 헤더 파트에서 고르던, 첫 두 파트는 base64 암호화해야 하는데, 이 부분이 유일하게 공개적으로 읽을 수 없는 부분이다. 비밀키로 암호화되므로, 이 정보는 복호화 불가능하다.
