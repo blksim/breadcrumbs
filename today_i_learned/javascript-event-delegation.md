@@ -1,6 +1,6 @@
 https://developer.mozilla.org/en-US/docs/Web/API/Event
 
-https://medium.com/@bretdoucette/part-4-what-is-event-delegation-in-javascript-f5c8c0de2983 를 번역한 
+https://medium.com/@bretdoucette/part-4-what-is-event-delegation-in-javascript-f5c8c0de2983 를 번역
 
 ### Event
 `Event` 인터페이스는 DOM의 어느 곳에서 이벤트가 시작되는 지를 나타낸다.
