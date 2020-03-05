@@ -64,9 +64,9 @@ character.addEventListener('click', showCharactersName);
 이는 페이지가 로드되었을 때 해당 요소가 페이지에 존재할 경우 잘 동작한다.
 하지만 초기 페이지 로드 이후에 요소가 DOM에 추가된다면 이벤트 리스너에 어떤 일이 발생할까?
 
-##Event Delegation
+## Event Delegation
 Event Delegation은 이 문제를 해결한다. Event Delegation을 이해하기 위해서, 우리는 아래 Disney Characters 목록을 볼 필요가 있다.
-https://miro.medium.com/max/558/1*e8wwVTidL-Wt_4-eN_PY4Q.png
+![alt text](https://miro.medium.com/max/558/1*e8wwVTidL-Wt_4-eN_PY4Q.png)
 
 이 목록은 간단한 기능을 갖고 있다. 캐릭터를 목록에 추가할 수 있고, 이름 옆의 체크박스에 체크할 수 있다.
 목록은 동적이기도 하다. input들(Mickey, Minnie, Goofy)는 **초기 페이지 로드 이후**에 추가되고, 그렇기에 등록된 이벤트 리스너도 갖고 있지 않다.
@@ -149,13 +149,13 @@ input의 변화를 직접 리스닝하고 있는 대신, **페이지가 초기 �
 
 ### Console.log(event.target)
 이제 input을 페이지 로드 뒤에 클릭했을 때 어떤 일이 일어날까?
-https://miro.medium.com/max/1650/1*zEg2lVlISrmkA1pjJzW6Lg.png
+![alt text](https://miro.medium.com/max/1650/1*zEg2lVlISrmkA1pjJzW6Lg.png)
 
 event.target은 이벤트가 디스패치된 객체에 대한 참조다. 달리 말하면, 이는 이벤트가 발생한 HTML 요소를 정의한다.
 이 케이스에서 발생한 이벤트는 클릭이다. 이벤트가 일어난 객체는 `<input/>`이다.
 
 ### Console.log(event.currentTarget)
-https://miro.medium.com/max/928/1*Dr7TDideY1Tp4KQUiWxbjg.png
+![alt text](https://miro.medium.com/max/928/1*Dr7TDideY1Tp4KQUiWxbjg.png)
 
 **event.currentTarget**은 DOM을 탐색하면서 이벤트의 현재 타겟을 정의한다. 이는 항상 이벤트 리스너가 붙은 요소를 말한다. 예시에서 이벤트 리스너는 unordered list, `characters`에 붙었으므로,
 콘솔에서 확인할 수 있는 내용은 위와 같다.
