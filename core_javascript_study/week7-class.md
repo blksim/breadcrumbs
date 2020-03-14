@@ -105,7 +105,8 @@ delete Square.prototype.width;
 delete Square.prototype.height;
 Object.freeze(Square.prototype);
 ```
-
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 ```
 var extendsClass1 = function (SuperClass, SubClass, subMethods) {
   SubClass.prototype = new SuperClass();
@@ -171,3 +172,72 @@ Square.prototype = Object.create(Rectangle.prototype); // Rectangle.prototype을
 Object.freeze(Square.prototype); // Square.prototype을 수정 불가하게 고정
 ```
 Object.create을 활용한 추상화
+
+
+### constructor 복구하기
+```
+var extnedClass1 = function (SuperClass, subClass, subMethods) {
+  SubClass.prototype = new SuperClass();
+  for (var prop in SubClass.prototype) {
+    if (SubClass.prototype.hasOwnProperty(prop)) {
+      delete SubClass.prototype[prop];
+    }
+  }
+  SubClass.prototype.constructor = SubClass;
+  if (subMethods) {
+    for (var method in subMethods) {
+      SubClass.prototype[method] = subMethods[method];
+    }
+}
+Object.freeze(SubClass.prototype);
+return SubClass;
+
+var extendClass3 = function (SuperClass, SubClass, subMethods) {
+  SubClass.prototype = Object.create(Superclass.prototype);
+  SubClass.prototype.constructor = SubClass;
+  if (subMethods) {
+    for (var method in subMethods) {
+      SubClass.prototype[method] = subMethods[method];
+    }
+  }
+  Object.freeze(SubClass.prototype);
+  return SubClass;
+};
+```
+
+빈 함수를 이용
+```
+var extendClass2 = (function () {
+  var Bridge = function () {};
+  return function (SuperClass, SubClass, subMethods) {
+    Bridge.prototype = SuperClass.prototype;
+    SubClass.prototype = new Bridge();
+    SubClass.prototype.constructor = SubClass;
+    Bridge.prototype.constructor = SuperClass;
+    if (subMethods) {
+      for (var method in subMethods) {
+        SubClass.prototype[method] = subMethods[method];
+      }
+    }
+    Object.freeze(SubClass.prototype);
+    return SubClass;
+  };
+})();
+```
+
+Object.create 활용
+```
+var extendClass3 = function (SuperClass, SubClass, subMethods) {
+  SubClass.prototype = Object.create(SuperClass.prototype);
+  SubClass.prototype.constructor = SubClass;
+  if (subMethods) {
+    for (var methods in subMethods) {
+      SubClass.prototype[method] = subMethods[method];
+    }
+  }
+  Object.freeze(SubClass.prototype);
+  return SubClass;
+}
+```
+상위 클래스에의 접근 수단 사용
+
