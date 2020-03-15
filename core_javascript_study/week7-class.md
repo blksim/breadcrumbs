@@ -99,7 +99,9 @@ Square.prototype = new Rectangle();
 - 이렇게 하위 클래스로 삼을 생성자 함수의 prototype에 상위 클래스의 인스턴스를 부여하는 것만으로도 기본적인 메소드 상속은 가능하지만 여전히 구조적으로 안전성 떨어짐
 
 ### 클래스가 구체적인 데이터 지니지 않게 하는 방법
-가장 쉬운 방법은 인스턴스 생성 이후에 프로퍼티 지우고 새로 추가하지 못하게 하는 것.
+= 앞선 문제 : 상위 클래스의 인스턴스를 하위 클래스의 프로토타입에서 참조함으로써 상속 효과를 낼 수 있게 됐지만,
+여전히 인스턴스를 통해 값을 조작할 수 있다는 안전성 문제가 있다.
+=> 인스턴스 멤버에 대한 접근 권한을 없애기 위해서 가장 쉬운 방법은 인스턴스 생성 이후에 프로퍼티 지우고 새로 추가하지 못하게 하는 것.
 ```
 delete Square.prototype.width;
 delete Square.prototype.height;
@@ -108,25 +110,31 @@ Object.freeze(Square.prototype);
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 ```
-var extendsClass1 = function (SuperClass, SubClass, subMethods) {
-  SubClass.prototype = new SuperClass();
-  for (var prop in SubClass.prototype) {
-    if(SubClasss.prototype.hasOwnProperty(prop)) {
-      delete SubClass.prototype[prop];
+// 목적 : 부모 클래스의 것을 포함한 메소드를 프로토타입에서 참조하는 인스턴스를 반환.
+// 부모클래스 인스턴스에서 메소드만 옮기고 나머지 프로퍼티는 삭제 후 불변객체로 리턴하는 함수
+var extendClass1 = function (SuperClass, SubClass, subMethods) {
+    SubClass.prototype = new SuperClass(); // 부모클래스 인스턴스를 자식클래스의 프로토타입이 참조.
+    for (var prop in SubClass.prototype) { // 자식 클래스의 프로토타입을 순회
+        if (SubClass.prototype.hasOwnProperty(prop)) { // 그 요소가 속성이면
+            delete SubClass.prototype[prop]; // 해당 속성을 삭제
+        }
     }
-  }
-  
-  if(subMethods) {
-    for (var method in subMethods) {
-      SubClass.prototype[method] = subMethods[method];
-    }
-  }
-  Object.freeze(SubClass.prototype);
-  return SubClass;
+    if (subMethods) { // 인자로 받은 subMethod(subClass에 추가할 메소드) 객체
+        for (var method in subMethods) { // subMethod 객체를 순회
+            SubClass.prototype[method] = subMethods[method];
+            // SubClass prototype 객체의 속성에 subMethod의 속성을 대입.
+        }
+    };
+
+    Object.freeze(SubClass.prototype); // SubClass.prototype을 불변객체로 만든다.
+    return SubClass;
 };
 
-var Square = extendClass1(Rectangle, function (width) {
-  Rectangle.call(this, width, width);
+// Square의 생성자 함수
+var Square = extendClass1(Rectangle, function (width) { // 부모 클래스 Rectangle, 자식 메소드
+    console.log(this);
+    Rectangle.call(this, width, width); // Rectangle 생성자 함수 호출 시 this, width, width를 인자로 전달
+    // 여기서 this는 생성자 함수 호출 시 전달할 값. 따로 지정하지 않을 시 null이나 undefined
 });
 ```
 상속받을 상위 클래스의 프로퍼티는 지우고, 메서드만 할당한 다음 고정하기
@@ -151,25 +159,36 @@ Object.freeze(Square.prototype);
 하위 클래스의 프로토타입에는 빈 생성자 함수의 인스턴스를 할당.
 
 ```
-var extendClass2 = (function () {
-  var Bridge = function () {};
-  return function (SuperClass, SubClass, subMethods) {
-    Bridge.prototype = SuperClass.prototype;
-    SubClass.prototype = new Bridge();
-    if (subMethods) {
-      for (var method in subMethods) {
-        SubClass.prototype[method] = subMethods[method];
-    }
-  }
-  Object.freeze(SubClass.prototype);
-  return SubClass;
-})();
+// 빈 생성자 함수(Bridge)를 이용하는 방법 = 생성자 함수는 인스턴스 프로퍼티 초기화를 위한 것이므로.
+// var Square = function (width) { // width를 인자로 받아 Rectangle의 생성자 함수를 호출한 다음, 생성자 함수에 대한 인자로 Square 인스턴스와 width를 대입
+//     Rectangle.call(this, width, width);
+// };
+// var Bridge = function () {}; // 빈 생성자 함수
+// Bridge.prototype = Rectangle.prototype; // Bridge 프로토타입이 Rectangle 프로토타입을 참조
+// Square.prototype = new Bridge(); // Square 프로토타입이 Bridge 인스턴스를 참조
+// Object.freeze(Square.prototype); // Square 프로토타입을 불변객체로 만든다.
+
+// // 위를 참고하면
+// var extendClass2 = (function () {
+//     var Bridge = function () {}; // 생성자 함수로 빈 함수 먼저 할당
+//     return function (SuperClass, SubClass, subMethods) {
+//         Bridge.prototype = SuperClass.prototype; // 부모 클래스의 프로토타입을 참조
+//         SubClass.prototype = new Bridge(); // 자식클래스는 브릿지 인스턴스를 참조
+//         if (subMethods) { // 자식 클래스에 추가할 메서드들이 있으면
+//             for (var method in subMethods) { // 객체 속성에 대입된 메소드들을
+//                 SubClass.prototype[method] = subMethods[method]; // 자식 클래스 프로토타입에 저장
+//             }
+//         Object.freeze(SubClass.prototype); // 불변객체화
+//         return SubClass;
+//         }
+//     }
+// })();
 ```
 즉시실행함수 내부에서 Bridge를 선언한 다음, 이를 클로저로 활용한 경우.
 
 ```
-Square.prototype = Object.create(Rectangle.prototype); // Rectangle.prototype을 참조하는 새 인스턴스를 Square.prototype에 할당
-Object.freeze(Square.prototype); // Square.prototype을 수정 불가하게 고정
+// Square.prototype = Object.create(Rectangle.prototype); // Rectangle의 프로토타입을 참조하는 새로운 객체 생성하여 인스턴스를 Sqaure 프로토타입이 참조
+// Object.freeze(Square.prototype); // Square 프로토타입을 불변객체화
 ```
 Object.create을 활용한 추상화
 
@@ -239,5 +258,4 @@ var extendClass3 = function (SuperClass, SubClass, subMethods) {
   return SubClass;
 }
 ```
-상위 클래스에의 접근 수단 사용
 
