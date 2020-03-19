@@ -50,7 +50,7 @@ mvn clean dependency:copy-dependencies package
 같은 플러그인의 다수 인스턴스들은 메이븐 2.0.11 이상부터 그룹핑되어 실행되고 순서가 정해진다.
 
 ### 어떤 페이즈들은 명령어로 잘 쓰지 않는다.
-하이픈화된 말들(`pre-*`, 'post-*', 혹은 process-*')을 포함하는 페이즈들은 대개 커맨드라인에서 직접적으로 쓰이지 않는다.
+하이픈화된 말들(`pre-*`, `post-*`, 혹은 `process-*`)을 포함하는 페이즈들은 대개 커맨드라인에서 직접적으로 쓰이지 않는다.
 이 페이즈들은 외부적으로 빌드에 유용한 즉각적인 결과를 제공하진 않는다. `integration-test`를 호출할 경우, 환경은 대기 상태에 남겨질 수 있다.
 
 Jacoco나 Tomcat, Cargo, Docker같은 실행 컨테이너 플러그인은 통합 테스트 컨테이너 환경을 준비하기 위해 goal을 `pre-integration-test` 페이즈에 바인드한다. 플러그인들은
@@ -59,3 +59,5 @@ Jacoco나 Tomcat, Cargo, Docker같은 실행 컨테이너 플러그인은 통합
 Failsafe와 코드 커버리지 플러그인은 `integration-test`와 `verify` 페이즈에 goal을 바인딩한다. `verify` 페이즈 다음에 테스트 및 커버리지 리포트가 가능하다.만약 
 `integration-test`가 커맨드라인에서 호출된다면, 리포트가 생성되지 않는다. 더 안좋은 것은 통합 테스트 컨테이너 환경이 그대로 대기 상태에 걸리게 된다는 것이다.
 Tomcat 웹서버나 Docker 인스턴스는 여전히 실행중이고, 메이븐은 스스로 중단하지 못할 수도 있다.
+
+..계속..
