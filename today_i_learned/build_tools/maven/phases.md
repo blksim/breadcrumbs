@@ -60,4 +60,82 @@ Failsafe와 코드 커버리지 플러그인은 `integration-test`와 `verify` �
 `integration-test`가 커맨드라인에서 호출된다면, 리포트가 생성되지 않는다. 더 안좋은 것은 통합 테스트 컨테이너 환경이 그대로 대기 상태에 걸리게 된다는 것이다.
 Tomcat 웹서버나 Docker 인스턴스는 여전히 실행중이고, 메이븐은 스스로 중단하지 못할 수도 있다.
 
-..계속..
+### 빌드 생명주기를 사용하기 위한 프로젝트 설정
+빌드 생명주기를 사용하는 건 단순하지만, 프로젝트를 메이븐으로 빌드할 때, 각각의 빌드 페이즈에 어떻게 태스크를 할당할 것인가?
+
+#### 패키징하기
+먼저, 가장 흔한 방식은 프로젝트를 POM 요소인 `<packaging>`과 같은 이름으로 정하는 것이다.
+몇몇 유효한 패키지 값은 `jar`, `war`, `ear` 그리고 `pom`이다. 만약 패키징 값이 정해지지 않았다면 기본값은 `jar`다.
+
+각 패키징은 특정한 페이즈와 바인드되는 goal 목록을 갖고 있다. 예를 들어, `jar`로 패키징할 경우 다음과 같은 goal들이 기본 생명주기의 빌드 페이즈에 바인드된다.
+
+| *Phase*                  | *plugin:goal*             |
+|------------------------|-------------------------|
+| `process-resources`      | `resources:resources`     |
+| `compile`                | `compiler:compile`         |
+| `process-test-resources` | `resources:testResources` |
+| `test-compile`           | `compiler:testCompile`    |
+| `test`                   | `surefire:test`           |
+| `package`                | `jar:jar`                 |
+| `install`                | `install:install`         |
+| `deploy`                 | `deploy:deploy`           |
+
+이는 거의 표준적인 바인딩 셋이다. 하지만, 몇몇 패키징은 다르게 handle한다. 예를 들어, 프로젝트 자체가 순수하게 메타데이터인 경우(패키징 값이 `pom`일 때)에는 goal들이 `install`과 `deploy` 페이즈에만 바인드된다.
+
+몇몇 패키징 타입이 사용 가능하려면, POM의 `build` 부분에 특정한 플러그인을 추가한 다음, `<extensions>true</extensions>` 구문으로 플러그인을 구체화시켜주어야 한다. 
+
+#### 플러그인들
+프로젝트에 goal들을 추가하는 두 번째 방법은 플러그인을 설정하는 것이다. 플러그인은 메이븐에 goal들을 전달해주는 artifacts를 말한다. 더 나아가, 플러그인은 하나 혹은 그 이상의 그 플러그인의 가용성을 나타내는 각각의 goal들을 갖고 있을 수도 있다. 예를 들어, 컴파일러 플러그인은 두 개의 goal을 갖고 있다 : `compile` 그리고 `testCompile`. 전자는 소스코드를 컴파일하고, 후자는 테스트콛르르 컴파일한다.
+
+다음 섹션에서 보면 알듯이, 플러그인은 어떤 생명주기 페이즈에 goal을 바인드할 지를 암시하는 정보를 포함할 수 있다. 플러그인만을 추가하는 것으로는 충분하지 않으며, 빌드 시 실행돼야 할 goal들을 반드시 명시해주어야 한다.
+
+이러한 goal들은 선택한 패키징의 생명주기에 이미 바인드된 goal들에 더해진다. 하나 이상의 goal이 특정한 페이즈에 바인드되면, 순서는 POM에 설정된 대로 따른다. `<executions>` 요소는 특정한 goal들의 순서에 대한 제어권을 다룰 수 있는 태그다.
+
+예를 들어, Modello 플러그인은 `generate-sources` 페이즈의 `modello:java`라는 goal에 기본으로 바인드된다. 그러므로 Modello 플러그인을 사용하는 것은 model에서 소스를 생성하고 빌드 시 통합하게 하려면, POM의 `<plugins>` 섹션의 `<build>` 내에 다음과 같은 내용을 추가하면 된다.
+
+```
+...
+<plugin>
+  <groupId>org.codehaus.modello</groupId>
+  <artifactId>modello-maven-plugin</artifactId>
+  <version>1.8.1</version>
+  <executions>
+    <execution>
+      <configuration>
+        <models>
+          <model>src/main/mdo/maven.mdo</model>
+        </models>
+        <version>4.0.0</version>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+...
+```
+`<executions>` 요소가 왜 저기에 있는지 궁금할 것이다. 같은 goal을 여러 번 각기 다른 설정과 함께 실행할 수 있어서다. 각각의 실행에는 ID가 주어지는데 inheritance에 있는 동안이나, 애플리케이션 프로필이
+goal 설정이 병합되거나 추가적인 실행으로 전환될 지를 결정할 수 있다.
+여러 개의 executions가 특정한 페이즈에 주어질 경우, 물려받은 execution들이 먼저 실행되며, POM에 정의된 순서대로 실행된다.
+`modello:java`의 경우, 이는 `generate-sources` 페이즈에만 해당된다. 하지만 몇몇 goal들은 하나 이상의 페이즈에서 사용될 수 있고, 이는 기본값이 아닐 수도 있다. 이런 경우 페이즈를 직접 정의할 수 있다. 예릃 들어, `display:time`은 커맨드라인에 현재 시간을 표시해주는 goal을 갖고 있다고 가정하고 이를 `process-test-resource' 페이즈를 테스트가 시작됐을 때 실행되도록 하고 싶다면, 이렇게 설정하면 된다.
+```
+...
+  <plugin>
+    <groupId>com.mycompany.example</groupId>
+    <artifactId>display-maven-plugin</artifactId>
+    <version>1.0</version>
+    <executions>
+      <execution>
+        <phase>process-test-resources</phase>
+        <goals>
+          <goal>time</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
+  ...
+```
+
+### 생명주기, 내장 생명주기 바인딩 참고
+다음의 목록은 `default`, `clean` 그리고 `site` 생명주기의, 각기 순서대로 실행되는 빌드 페이즈 목록이다.
+링크를 참고. 너무 길어서 다 못옮김
+
+
