@@ -82,3 +82,49 @@ public void responsesByQuestionAnswersCountsByQuestionText() {
 > 따라서 테스트 코드는 어떤 순서나 시간에 관계없이 실행할 수 있어야 합니다. .... 테스트에 두 번째 단언을 추가할 때 다음과 같이 스스로 질문해야 합니다. "이들 단언이 단일 동작을 검증하도록 돕는가, 아니면 새로운 테스트 이름으로 기술할 수 있는 어떤 동작을 대표하는가?"
 
 > 테스트 메서드가 하나 이상의 이유로 깨진다면 테스트를 분할하는 것도 고려해 보세요. 집중적인 단위 테스트가 깨지면 대개 그 원인은 분명합니다.
+
+### FI[R]ST
+가짜 객체(여기서는 Clock)를 사용하여 언제든 반복 가능한 테스트 코드를 만들기.
+
+```
+@Test
+public void questionAnswerDateAdded() {
+  Instant now = new Date().toInstant(); 
+  contoller.setClock(Clock.fixed(now, ZoneId.of("America/Denver"))); // 고정된 instant 객체 얻기.
+  int id = controller.addBooleanQuestion("text");
+  
+  Question question = controller.find(id);
+  
+  assertThat(question.getCreateTimestamp(), equalTo(now));
+}
+```
+```
+public class QuestionController {
+  private Clock clock = Clock.systemUTC(); // clock 인스턴스 주입하지 않을 경우
+  //...
+  public int addBooleanQuestion(String text) {
+    return persist(new BooleanQuestion(text));
+  }
+  
+  void setClock(Clock clock) {
+    this.clock = clock;
+  }
+  //...
+  private int persist(Persistable object) {
+    object.setCreateTimestamp(clock.instant());  
+    executeInTransaction((em) -> em.persist(object));
+    return object.getId();
+  }
+}
+```
+
+### FIR[S]T
+> 테스트는 기대하는 것이 무엇인지 단언하지 않으면 테스트가 아닙니다. 테스트 결과를 (단언하지 않고) 수동적으로 검증하는 것은 시간 소모적인 절차고 리스크가 늘어납니다.
+
+> 그럼에도 테스트를 실행하는 데 외부 설정이 필요하다면 FIRST 중에 I(독립성) 부분을 위반한 것입니다.
+
+### FIRS[T]
+> 단위 테스트로 코드를 검증하는 것을 미룰 수록 (불쾌한) 치석이 끼고 충치(결함)가 늘어날 것입니다. 또 코드를 소스 저장소에 넣으면 그것을 되돌려 테스트를 작성하기는 더욱 힘들어집니다.
+
+> 마지막으로 옛날 코드에 대한 테스트는 시간 낭비가 될 수도 있습니다. 코드에 큰 결함이 없고 당장 변경할 예정이 없다면, 여러분 노력은 거의 보상받지 못할 것입니다. 그 노력을 좀 더 말썽이 많고 역동적인 부분에 사용하세요.
+
