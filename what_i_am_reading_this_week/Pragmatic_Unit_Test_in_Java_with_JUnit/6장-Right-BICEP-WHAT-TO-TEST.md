@@ -83,3 +83,58 @@ long으로 받아서 int으로 다운캐스팅하면 int 범위 넘어가지 않
 api 호출하는 클라이언트가 내부 팀 소속이라면 
 보호절을 제거하고 주석을 남기던가, 
 코드 제한 사항 자체를 문서화하기 위한 테스트를 남기는 게 좋다.
+
+### 경계 조건에서는 CORRECT를 기억하라
+> 
+* [C]onformance(준수): 값이 기대한 양식을 준수하고 있는가?
+* [O]rdering(순서) : 값의 집합이 적절하게 정렬되거나 정렬되지 않았나?
+* [R]ange(범위) : 이성적인 최솟값과 최댓값 안에 있는가?
+* [R]eference(참조) : 코드 자체에서 통제할 수 없는 어떤 외부 참조를 포함하고 있는가?
+* [E]xistence(존재) : 값이 존재하는가(non-null), 0이 아니거나, 집합이 존재하는가 등
+* [C]ardinality(기수) : 정확히 충분한 값들이 있는가?
+* [T]ime(절대적 혹은 상대적 시간) : 모든 것이 순서대로 일어나는가? 정확한 시간에? 정시에?
+(127p)
+
+### B[I]CEP - 역 관계를 검사할 수 있는가?
+
+```
+public class Profile {
+  private Map<String, Answer> answers = new HashMap<>();
+  //...
+  
+  public void add(Answer answer) {
+    answers.put(answer.getQuestionText(), answer);
+  }
+  
+  //...
+  int[] ids(Collection<Answer> answers) {
+    return answers.stream().mapToInt(a -> a.getQuestion().getId().toArray());
+  }
+  
+  public List<Answer> find(Predicate<Answer> pred) {
+    return answers.values().stream().filter(pred).collect(Collectors.toList());
+  }
+}
+
+@Test
+public void findsAnswersBasedOnPredicate() {
+  profile.add(new Answer(new BooleanQuestion(1, "1"), Bool.FALSE));
+  profile.add(new Answer(new PercentileQuestion(2, "2", new String[]{}), 0));
+  profile.add(new Answer(new PercentileQuestion(3, "3", new String[]{}), 0));
+  
+  List<Answer> answers = profile.find(a -> a.getQuestion().getClass() == PercentileQuestion.class);
+  
+  assertThat(ids(answers), equalTo(new int[] {2, 3});
+```
+
+```
+List<Answer> answersComplement = profile.find(a -> a.getQuestion().getClass() != PercentileQuestion.class);
+List<Answer> allAnswers = new ArrayList<Answer>();
+allAnswers.addAll(answersComplement);
+allAnswers.addAll(answers);
+
+assertThat(ids(allAnswers), equalTo(new int[] { 1, 2, 3 } )); // 긍정 답변과 역 답변을 합하면 전체가 돼야 함. 보어 관계를 활용한 교차 검사
+```
+
+### BI[C]EP
+다른 수단을 이용한 교차 검증도 가능해야 한다. 프로덕션 수준에 쓸 수 없더라도, 다른 라이브러리나 클래스의 조각 데이터를 통해 같은 결과가 나오는 지 테스트할 수 있다면 마다할 필요가 없음.
