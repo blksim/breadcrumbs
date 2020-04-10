@@ -138,3 +138,50 @@ assertThat(ids(allAnswers), equalTo(new int[] { 1, 2, 3 } )); // 긍정 답변�
 
 ### BI[C]EP
 다른 수단을 이용한 교차 검증도 가능해야 한다. 프로덕션 수준에 쓸 수 없더라도, 다른 라이브러리나 클래스의 조각 데이터를 통해 같은 결과가 나오는 지 테스트할 수 있다면 마다할 필요가 없음.
+
+### BIC[E]P 
+정말 예기치 못한 오류 조건을 강제로 발생시켜봐야 수고를 줄일 수 있다. 이 때 불행 시나리오에 해당하는 오류는,
+- 메모리가 가득 찰 때
+- 디스크 공간이 가득 찰 때
+- 네트워크 오류
+등이 있고, 시뮬레이션하기 다소 까다로운 환경일 수록 테스트가 필요
+
+> 좋은 단위 테스트는 단지 코드에 존재하는 로직 전체에 대한 커버리지를 달성하는 것이 아닙니다.
+> 가장 끔찍한 결함들은 종종 전혀 예상하지 못한 곳에서 나옵니다.
+
+
+### BICE[P]
+> 정말 많은 프로그래머가 성능 문제가 어디에 있으며 최적의 해법이 무엇인지 **추측**합니다. 유일한 문제점은 이러한 추측이 종종 잘못되었다는 것입니다. 
+> 추측만으로 성능 문제에 바로 대응하기보다는, 단위 테스트를 설계하여 진짜 문제가 어디에 있으며 예상한 변경 사항으로 어떤 차이가 생겼는지 파악해야 합니다.
+
+> 최적화를 하기 전에 먼저 기준점으로 단지 현재 경과 시간(elapsed time)을 측정하는 성능 테스트를 작성하세요.(그것을 몇 번 실행해 보고 평균을 계산하세요). 코드를 변경하고 성능 테스트를 다시 실행하고 결과를 비교합니다. 상대적인 개선량을 찾으세요. 실제 숫자 자체는 중요하지 않습니다.
+
+```
+private long run(int times, Runnable func) {
+  long start = System.nanoTime();
+  for (int i = 0; i < times; i++)
+    func.run();
+  long stop = System.nanoTime();
+  return (stop - start) / 1000000;
+}
+```
+```
+@Test
+public void findAnswers() {
+  int dataSize = 5000;
+  for (int i = 0; i < dataSize; i++) 
+    profile.add(new Answer(new BooleanQuestion(i, String.valueOf(i)), Bool.FALSE));
+  
+  profile.add(new Answer(new PercentileQuestion(dataSize, String.valueOf(dataSize), new String[] {}), 0));
+  
+  int numberOfTimes = 1000;
+  long elapsedMs = run(numberOfTimes, () -> profile.find(a -> a.getQuestion().getClass() == PercentileQuestion.class));
+  
+  assertTrue(elapsedMs < 1000);
+}
+```
+위의 예는 검색 동작이 1초에 1000번 실행 가능한 지 단언하는데 .... 여러 환경에서 일관성 있는 동작을 보장하는 해법은 쉽지 않다.
+유일한 해법은 가능한 프로덕션 환경과 유사한 머신에서 실행하는 것.
+
+**모든 성능 최적화 시도는 실제 데이터로 해야 하며 추측을 기반으로 해서는 안 됩니다**
+
