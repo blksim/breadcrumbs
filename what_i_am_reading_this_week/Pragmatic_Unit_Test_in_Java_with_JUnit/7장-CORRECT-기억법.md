@@ -47,3 +47,54 @@ public List<Profile> ranked() {
   return profiles;
 }
 ```
+
+### CO[R]RECT : Range(범위)
+자바의 기본형을 너무 자주 사용할 경우 지나치게 크거나 음수인 값이 넘어갈 여지를 주게 된다.
+이 때 범위를 제약하는 로직을 클래스로 추상화할 수 있다.
+```
+public class BearingTest {
+  @Test(expected=BearingOutOfRangeException.class)
+  public void throwsOnNegativeNumber() {
+    new Bearing(-1);
+  }
+  
+  @Test(expected=BearingOutOfRangeException.class)
+  public void throwsWhenBearingTooLarge() {
+    new Bearing(Bearing.MAX + 1);
+  }
+  
+  @Test
+  public void answersValidBearing() {
+    assertThat(new Bearing(Bearing.MAX).value(), equalTo(Bearing.MAX));
+  }
+  
+  @Test
+  public void answersAngleBetweenItAndAnotherBearing() {
+    assertThat(new Bearing(15).angleBetween(new Bearing(12)), equalTo(3));
+  }
+  
+  @Test
+  public void angleBetweenIsNegativeWhenThisBearingSmaller() {
+    assertThat(new Bearing(12).angleBetween(new Bearing(15)), equalTo(-3));
+  }
+}
+```
+```
+public class Bearing { 
+  public static final int MAX = 359;
+  private int value;
+  
+  public Bearing(int value) {
+    if (value < 0 || value > MAX) throw new BearingOutOfRangeException();
+    this.value = value;
+  }
+  
+  public int value() {
+    return value;
+  }
+  
+  public int angleBetween(Bearing bearing) {
+    return value - bearing.value;
+  }
+}
+```
