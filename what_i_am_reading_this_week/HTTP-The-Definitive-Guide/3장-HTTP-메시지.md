@@ -41,6 +41,46 @@
 
 ### 3.5 헤더
 - 헤더는 클라이언트와 서버가 무엇을 하는지 결정하는 데 사용되며, 다섯 가지 종류가 있다.
-- 일반 헤더(General Headers) 
-- 요청 헤더(Request Headers) 
-- 응답 헤더(Response Headers) 
+- 일반 헤더(General Headers) : 클라이언트와 서버 양쪽에서, 클라이언트/서버/다른 애플리케이션 등에 메시지를 보내기 위해 공통적으로 사용하는 헤더.
+- Connection, Date, MIME-Version, Trailer chuncked transfer, Transfer-Encoding, Upgrade, Via
+- 캐시 관련 헤더 : Cache-Control, Pragma
+
+- 요청 헤더(Request Headers) : 클라이언트가 서버로부터 응답받고자 하는 데이터의 타입 등의 부가 정보를 포함한다. 예) Accept: */*
+- Client-IP, From, Host, Referer, UA-Color, UA-CPU, UA-Disp, UA-OS, UA-Pixels, User-Agent
+
+*Accept 관련 헤더*
+- 클라이언트는 서버로부터 원하는 미디어 종류, 문자 집합, 인코딩, 언어, 확장 전송 코딩을 미리 헤더에 포함시킬 수 있다.
+- Accept, Accept-Charset, Accept-Encoding, Accept-Language, TE
+
+*조건부 요청 헤더*
+- 조건부 요청 헤더는 서버에게 응답 전 제약 조건 확인을 먼저 요구한다.
+- Expect, If-Match, If-Modifed-Since, If-None-Match, If-Range, If-Unmodified-Since, Range
+
+*요청 보안 헤더*
+- 인증 정보를 헤더에 포함하므로써 리소스 접근 전 인증할 수 있도록 한다.
+- Authorization, Cookie, Cookie2
+
+*프락시 요청 헤더*
+- Max-Forwards, Proxy-Authorization, Proxy-Connection
+
+- 응답 헤더(Response Headers) : 서버가 클라이언트에게 제공하는 자신만의 헤더. 
+- Age, Public, Retry-After, Server, Title, Warning
+*협상 헤더*
+- Accept-Ranges, Vary
+
+*응답 보안 헤더*
+- Proxy-Authenticate, Set-Cookie, Set-Cookie2, WWW-Authenticate
+
+- 엔터티 헤더(Entity Headers) : 엔터티 본문의 데이터 타입에 대한 정보를 제공한다. 예) Content-Type: text/html; charset=iso-latin-1
+Allow(해당 엔터티에 대해 수행될 수 있는 요청 메서드 목록), Location(엔터티의 실제 위치, 즉 리소스에 대한 새로운 URL을 알려줌)
+
+*콘텐츠 헤더*
+Content-Base, Content-Encoding, Content-Languate, Content-Length, Content-Location, Content-MD5, Content-Range, Content-Type
+
+*엔터티 캐싱 헤더*
+> 예를 들면, 리소스에 대해 캐시된 사본이 아직 유효한지에 대한 정보와, 캐시된 리소스가 더 이상 유효하지 않게 되는 시점을 더 잘 추정하기 위한 단서같은 것이다.
+- ETag, Expires, Last-Modifed
+
+- 확장 헤더(Extension Headers) : *애플리케이션 개발자들에 의해 만들어졌지만 아직 승인된 HTTP에는 추가되지 않은 비표준 헤더, p77*
+
+상태코드, 헤더 별 설명을 열거하지 않았음. 책 참고하기.
