@@ -12,13 +12,11 @@
 - border까지 box로 친다. (margin은 시각적으로 보이는 경계선인 border의 바깥 여백이므로 제외)
 - box width = width of the content + padding + border, box height = height of the content + padding + border
 
-```
-The problem for present-day developers is that those absolute pixel lengths don't translate to responsive design, so the same math doesn't apply anymore.
-```
-```
-With `box-sizing: border-box`, we can change the box model to what was once the "quirky" way, where an element's specified width and height aren't affected by padding or borders.
+>The problem for present-day developers is that those absolute pixel lengths don't translate to responsive design, so the same math doesn't apply anymore.<br>
+
+>With `box-sizing: border-box`, we can change the box model to what was once the "quirky" way, where an element's specified width and height aren't affected by padding or borders.
 This has proven so useful in responsive design that it's found its way into reset styles.
-```
+
 
 https://developer.mozilla.org/en-US/docs/Web/CSS/box-sizing<br>
 https://css-tricks.com/box-sizing/
